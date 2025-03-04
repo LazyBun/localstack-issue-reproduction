@@ -1,5 +1,13 @@
 # Localstack issue reproduction
 
+The executed step function should hang. Then, on `localstack gui`, the map run will be marked as failed:
+
+![failed map run on GUI](image.png)
+
+and the `awslocal stepfunctions describe-map-run --map-run-arn [...]` will show `Running`.
+
+#### Step by step instructions (alternatively run `script.sh`)
+
 0. **Zip** the lambda:
 
 ```bash
@@ -58,3 +66,5 @@ awslocal stepfunctions start-execution \
     ]
   }'
 ```
+
+The executed stepfunction should hang
