@@ -1,0 +1,60 @@
+{
+    "Comment": "A state machine with nested DistributedMap for PoC",
+    "StartAt": "OuterMap",
+    "States": {
+      "OuterMap": {
+        "Type": "Map",
+        "ResultPath": null,
+        "Next": "FinalState",
+        "ItemsPath": "$.outerJobs",
+        "ItemSelector": {
+          "innerJobs.$": "$$.Map.Item.Value.innerJobs"
+        },
+        "ItemProcessor": {
+          "ProcessorConfig": {
+            "Mode": "DISTRIBUTED",
+            "ExecutionType": "STANDARD"
+          },
+          "StartAt": "InnerMap",
+          "States": {
+            "InnerMap": {
+              "Type": "Map",
+              "ResultPath": null,
+              "End": true,
+              "ItemsPath": "$.innerJobs",
+              "ItemSelector": {
+                "job.$": "$$.Map.Item.Value"
+              },
+              "ItemProcessor": {
+                "ProcessorConfig": {
+                  "Mode": "DISTRIBUTED",
+                  "ExecutionType": "STANDARD"
+                },
+                "StartAt": "ProcessJob",
+                "States": {
+                  "ProcessJob": {
+                    "Type": "Task",
+                    "Resource": "arn:aws:states:::lambda:invoke",
+                    "Parameters": {
+                      "FunctionName": "ProcessJobLambda",
+                      "Payload": {
+                        "job.$": "$.job"
+                      }
+                    },
+                    "End": true
+                  }
+                }
+              },
+              "MaxConcurrency": 9
+            }
+          }
+        },
+        "MaxConcurrency": 50
+      },
+      "FinalState": {
+        "Type": "Pass",
+        "End": true
+      }
+    }
+  }
+  
