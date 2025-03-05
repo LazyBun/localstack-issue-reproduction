@@ -1,5 +1,7 @@
 # Localstack issue reproduction
 
+https://github.com/localstack/localstack/issues/12335
+
 The executed step function should hang. Then, on `localstack gui`, the map run will be marked as failed:
 
 ![failed map run on GUI](image.png)
